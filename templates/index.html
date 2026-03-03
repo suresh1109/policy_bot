@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolicyBot AI v3 — Insurance Advisor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body class="theme-neon" id="body-root">
+
+<canvas id="particle-canvas"></canvas>
+<div class="bg-grid"></div>
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="hdr-left">
+    <div class="logo-wrap">
+      <div class="logo-icon"><i class="fas fa-shield-halved"></i></div>
+      <div>
+        <div class="logo-name">PolicyBot <span class="ver-badge">v3</span></div>
+        <div class="logo-sub">AI Insurance Advisor · Gemini Vision</div>
+      </div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="theme-strip" id="theme-strip">
+      <button class="th-btn active" data-theme="neon"    title="Neon Dark"><i class="fas fa-moon"></i></button>
+      <button class="th-btn"        data-theme="clean"   title="Light"><i class="fas fa-sun"></i></button>
+      <button class="th-btn"        data-theme="glass"   title="Glass"><i class="fas fa-gem"></i></button>
+      <button class="th-btn"        data-theme="minimal" title="Minimal"><i class="fas fa-circle-half-stroke"></i></button>
+    </div>
+    <select class="lang-sel" id="lang-sel" onchange="setLang(this.value)">
+      <option value="English">IN English</option>
+      <option value="Tamil">IN Tamil</option>
+      <option value="Hindi">IN Hindi</option>
+    </select>
+    <button class="icon-btn" onclick="toggleFontSize()" title="Font size"><i class="fas fa-text-height"></i></button>
+    <a href="/admin/login" class="hdr-admin-btn"><i class="fas fa-chart-pie"></i> Admin</a>
+  </div>
+</header>
+
+<!-- MAIN LAYOUT -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Profile card -->
+    <div class="side-card profile-card">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar-ring"><i class="fas fa-user-circle"></i></div>
+        <div class="id-verified-dot hidden" id="id-verified-dot" title="ID Verified">
+          <i class="fas fa-check"></i>
+        </div>
+      </div>
+      <div class="profile-name" id="p-name">Your Profile</div>
+      <div class="profile-fields" id="p-fields">
+        <div class="pf-row hidden" id="pf-ins"><i class="fas fa-heart-pulse"></i><span id="pv-ins">—</span></div>
+        <div class="pf-row hidden" id="pf-age"><i class="fas fa-calendar"></i><span id="pv-age">—</span></div>
+        <div class="pf-row hidden" id="pf-city"><i class="fas fa-location-dot"></i><span id="pv-city">—</span></div>
+        <div class="pf-row hidden" id="pf-budget"><i class="fas fa-indian-rupee-sign"></i><span id="pv-budget">—</span></div>
+        <div class="pf-row hidden" id="pf-medical"><i class="fas fa-syringe"></i><span id="pv-medical">—</span></div>
+      </div>
+      <div class="verif-row hidden" id="verif-row">
+        <div class="verif-item">
+          <i class="fas fa-id-card"></i> Gov ID
+          <span class="verif-badge pending" id="vb-govid">Pending</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload card — HIDDEN by default, JS shows it at upload stages -->
+    <div class="side-card upload-card hidden" id="upload-card">
+      <div class="upload-header">
+        <i class="fas fa-lock"></i> Secure Upload
+        <span class="ocr-badge" id="ocr-badge" title="Offline OCR Active">OCR</span>
+      </div>
+      <div class="upload-privacy-note">
+        <i class="fas fa-lock" style="color:var(--success)"></i> Images never stored permanently<br>
+        <i class="fas fa-ban"  style="color:var(--danger)"></i>  ID numbers never recorded
+      </div>
+      <select class="upload-sel" id="up-doc-type">
+        <optgroup label="Government ID">
+          <option value="aadhaar">Aadhaar Card</option>
+          <option value="pan">PAN Card</option>
+          <option value="driving_license">Driving Licence</option>
+          <option value="passport">Passport</option>
+          <option value="voter_id">Voter ID</option>
+        </optgroup>
+        <optgroup label="Health / Condition Docs">
+          <option value="health_report">Health Report / Lab Report</option>
+          <option value="condition_report">Medical Prescription</option>
+        </optgroup>
+        <optgroup label="Vehicle Docs">
+          <option value="rc_book">RC Book</option>
+          <option value="vehicle_insurance">Previous Vehicle Insurance</option>
+        </optgroup>
+        <optgroup label="Life / Term Docs">
+          <option value="life_doc">Medical History / Income Proof</option>
+        </optgroup>
+        <optgroup label="Travel Docs">
+          <option value="travel_doc">Travel Declaration Doc</option>
+        </optgroup>
+        <optgroup label="Property Docs">
+          <option value="property_doc">Property Damage / Claim Proof</option>
+        </optgroup>
+        <optgroup label="Other">
+          <option value="prev_policy">Previous Insurance Policy</option>
+        </optgroup>
+      </select>
+      <label class="upload-drop-zone" id="upload-drop-zone" for="file-upload">
+        <div class="udz-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+        <div class="udz-text">Tap to upload or drag &amp; drop</div>
+        <div class="udz-sub">JPG · PNG · WEBP · GIF · BMP · TIFF · PDF · DOCX · TXT · Max 15MB</div>
+        <input type="file" id="file-upload"
+               accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.tiff,.tif,.pdf,.docx,.doc,.txt"
+               onchange="handleUpload(this)" hidden>
+      </label>
+      <button class="skip-upload-btn hidden" id="skip-upload-btn" onclick="skipConditionUpload()">
+        <i class="fas fa-forward"></i> Skip — Continue Without
+      </button>
+      <div class="verif-status-box hidden" id="verif-status-box">
+        <div class="vsb-spinner hidden" id="vsb-spinner">
+          <div class="spinner-ring"></div><span>Analyzing document…</span>
+        </div>
+        <div class="vsb-result hidden" id="vsb-result"></div>
+      </div>
+
+    </div>
+
+    <!-- Confidence card -->
+    <div class="side-card confidence-card hidden" id="confidence-card">
+      <div class="conf-title"><i class="fas fa-shield-check"></i> Confidence Level</div>
+      <div class="conf-value" id="conf-value">—</div>
+    </div>
+
+    <!-- Progress card -->
+    <div class="side-card progress-card">
+      <div class="prog-label-row">
+        <span class="prog-title" id="prog-stage-label">Getting Started</span>
+        <span class="prog-pct"   id="prog-pct">7%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:7%"></div></div>
+      <div class="prog-dots" id="prog-dots">
+        <span class="pd active"></span><span class="pd"></span><span class="pd"></span>
+        <span class="pd"></span><span class="pd"></span><span class="pd"></span>
+        <span class="pd"></span><span class="pd"></span><span class="pd"></span>
+        <span class="pd"></span><span class="pd"></span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- CHAT SECTION -->
+  <section class="chat-area">
+    <div class="chat-messages" id="chat-messages"></div>
+
+    <div class="typing-row hidden" id="typing-row">
+      <div class="typing-bubble">
+        <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
+      </div>
+      <span class="typing-label">PolicyBot is thinking…</span>
+    </div>
+
+    <div class="options-zone" id="options-zone"></div>
+
+    <!-- Rating panel -->
+    <div class="rating-panel hidden" id="rating-panel">
+      <div class="rating-title">Rate your experience with PolicyBot</div>
+      <div class="stars-row" id="stars-row">
+        <button class="star-btn" onclick="setStar(1)">★</button>
+        <button class="star-btn" onclick="setStar(2)">★</button>
+        <button class="star-btn" onclick="setStar(3)">★</button>
+        <button class="star-btn" onclick="setStar(4)">★</button>
+        <button class="star-btn" onclick="setStar(5)">★</button>
+      </div>
+      <div class="rating-labels">
+        <span>Poor</span><span>Below Average</span><span>Average</span><span>Good</span><span>Excellent</span>
+      </div>
+      <button class="rating-submit hidden" id="rating-submit" onclick="submitRating()">
+        <i class="fas fa-paper-plane"></i> Submit Rating
+      </button>
+    </div>
+
+    <!-- Escalation panel -->
+    <div class="escalation-panel hidden" id="esc-panel">
+      <div class="esc-title"><i class="fas fa-headset"></i> Connect with Human Advisor</div>
+      <div class="esc-fields">
+        <input class="esc-input" id="esc-phone" type="tel"  placeholder="Your phone number (+91...)">
+        <input class="esc-input" id="esc-time"  type="text" placeholder="Best time to call (e.g. 10am-12pm)">
+        <button class="esc-btn" onclick="submitEscalation()">
+          <i class="fas fa-phone"></i> Request Callback
+        </button>
+      </div>
+    </div>
+
+    <!-- Input bar -->
+    <div class="input-bar">
+      <button class="mic-btn" id="mic-btn" onclick="toggleVoice()" title="Voice input">
+        <i class="fas fa-microphone" id="mic-icon"></i>
+        <div class="mic-ring" id="mic-ring"></div>
+      </button>
+      <div class="input-box">
+        <textarea id="chat-input"
+          placeholder="Type your message or choose an option above..."
+          rows="1" onkeydown="onKey(event)" oninput="autoH(this)"></textarea>
+      </div>
+      <button class="send-btn" onclick="sendMsg()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+
+    <!-- Voice waveform -->
+    <div class="waveform-bar hidden" id="waveform-bar">
+      <div class="wf-wrap">
+        <div class="wf-icon"><i class="fas fa-microphone"></i></div>
+        <div class="wf-bars">
+          <div class="wfb" style="--d:0s"></div><div class="wfb" style="--d:.06s"></div>
+          <div class="wfb" style="--d:.12s"></div><div class="wfb" style="--d:.18s"></div>
+          <div class="wfb" style="--d:.24s"></div><div class="wfb" style="--d:.30s"></div>
+          <div class="wfb" style="--d:.24s"></div><div class="wfb" style="--d:.18s"></div>
+          <div class="wfb" style="--d:.12s"></div><div class="wfb" style="--d:.06s"></div>
+          <div class="wfb" style="--d:0s"></div>
+        </div>
+        <span class="wf-label" id="wf-label">Listening...</span>
+      </div>
+      <button class="wf-stop" onclick="stopVoice()"><i class="fas fa-stop"></i> Stop</button>
+    </div>
+  </section>
+</div>
+
+<!-- Toast -->
+<div id="toast-wrap"></div>
+
+<!-- Farewell overlay -->
+<div class="farewell-overlay hidden" id="farewell-overlay">
+  <div class="farewell-box">
+    <div class="farewell-confetti" id="farewell-confetti"></div>
+    <div class="farewell-emoji">🎉</div>
+    <div class="farewell-text" id="farewell-text">Thank you! Wishing you a safe future.</div>
+    <div class="farewell-sub">Your uploaded documents have been securely deleted.</div>
+    <button class="farewell-btn" onclick="startNewChat()">Start New Chat</button>
+  </div>
+</div>
+
+<!-- Verification overlay -->
+<div class="verif-overlay hidden" id="verif-overlay">
+  <div class="verif-overlay-box">
+    <div class="verif-scan-ring"></div>
+    <div class="verif-overlay-title" id="verif-overlay-title">Analyzing Document</div>
+    <div class="verif-engine-badge" id="verif-engine-badge">
+      <i class="fas fa-microchip"></i> <span id="engine-label">Offline OCR</span>
+    </div>
+    <div class="verif-overlay-steps">
+      <div class="vos active" id="vos-1"><i class="fas fa-upload"></i> Document Received</div>
+      <div class="vos"        id="vos-2"><i class="fas fa-search"></i> Checking Image Quality</div>
+      <div class="vos"        id="vos-3"><i class="fas fa-font"></i> Extracting Text (OCR)</div>
+      <div class="vos"        id="vos-4"><i class="fas fa-calendar-alt"></i> Finding Date of Birth</div>
+      <div class="vos"        id="vos-5"><i class="fas fa-user-check"></i> Verifying Age Match</div>
+    </div>
+    <div class="verif-overlay-sub" id="verif-overlay-sub">Please wait...</div>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolicyBot — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="/static/css/main.css">
+<link rel="stylesheet" href="/static/css/admin.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body class="theme-neon admin-body">
+<div class="bg-grid"></div><div class="bg-orb orb-1"></div>
+
+<nav class="admin-nav">
+  <div class="nav-logo">
+    <div class="logo-icon"><i class="fas fa-shield-halved"></i></div>
+    <div><div class="logo-name">Admin v3</div><div class="logo-sub">PolicyBot</div></div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link active" data-section="dashboard" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</a>
+    <a class="nav-link" data-section="kb" onclick="showSection('kb')"><i class="fas fa-brain"></i> Policy KB</a>
+    <a class="nav-link" data-section="users" onclick="showSection('users')"><i class="fas fa-users"></i> Users</a>
+    <a class="nav-link" data-section="chats" onclick="showSection('chats')"><i class="fas fa-message"></i> Chat Logs</a>
+    <a class="nav-link" data-section="leads" onclick="showSection('leads')"><i class="fas fa-bullseye"></i> Leads</a>
+    <a class="nav-link" data-section="ratings" onclick="showSection('ratings')"><i class="fas fa-star"></i> Ratings</a>
+    <a class="nav-link" data-section="documents" onclick="showSection('documents')"><i class="fas fa-file-pdf"></i> User Docs</a>
+    <a class="nav-link" data-section="fraud" onclick="showSection('fraud')"><i class="fas fa-triangle-exclamation"></i> Fraud</a>
+    <a class="nav-link" data-section="apikeys" onclick="showSection('apikeys')"><i class="fas fa-key"></i> API Keys</a>
+  </div>
+  <div class="nav-footer">
+    <a href="/" class="nav-chat-btn"><i class="fas fa-comments"></i> Live Chat</a>
+    <a href="/admin/logout" class="nav-logout-btn"><i class="fas fa-right-from-bracket"></i> Logout</a>
+  </div>
+</nav>
+
+<main class="admin-content">
+
+<!-- DASHBOARD -->
+<section class="admin-section" id="sec-dashboard">
+  <div class="sec-header">
+    <h1 class="sec-title">Analytics Dashboard</h1>
+    <button class="refresh-btn" onclick="loadAll()"><i class="fas fa-sync"></i> Refresh</button>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card" style="--accent:#5a72ff"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-num" id="s-users">—</div><div class="stat-lbl">Total Users</div></div>
+    <div class="stat-card" style="--accent:#10b981"><div class="stat-icon"><i class="fas fa-id-card-clip"></i></div><div class="stat-num" id="s-verified">—</div><div class="stat-lbl">ID Verified</div></div>
+    <div class="stat-card" style="--accent:#f59e0b"><div class="stat-icon"><i class="fas fa-bullseye"></i></div><div class="stat-num" id="s-leads">—</div><div class="stat-lbl">Total Leads</div></div>
+    <div class="stat-card" style="--accent:#06b6d4"><div class="stat-icon"><i class="fas fa-message"></i></div><div class="stat-num" id="s-chats">—</div><div class="stat-lbl">Total Chats</div></div>
+    <div class="stat-card" style="--accent:#a855f7"><div class="stat-icon"><i class="fas fa-star"></i></div><div class="stat-num" id="s-rating">—</div><div class="stat-lbl">Avg Rating</div></div>
+    <div class="stat-card" style="--accent:#ef4444"><div class="stat-icon"><i class="fas fa-headset"></i></div><div class="stat-num" id="s-escalations">—</div><div class="stat-lbl">Escalations</div></div>
+    <div class="stat-card" style="--accent:#5a72ff"><div class="stat-icon"><i class="fas fa-percent"></i></div><div class="stat-num" id="s-conversion">—</div><div class="stat-lbl">Conversion</div></div>
+    <div class="stat-card" style="--accent:#f59e0b"><div class="stat-icon"><i class="fas fa-syringe"></i></div><div class="stat-num" id="s-diabetes">—</div><div class="stat-lbl">Diabetes Users</div></div>
+  </div>
+  <div class="charts-row">
+    <div class="chart-card"><div class="chart-title">Insurance Types</div><canvas id="ch-ins" height="200"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Popular Plans</div><canvas id="ch-plans" height="200"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Language Distribution</div><canvas id="ch-lang" height="200"></canvas></div>
+    <div class="chart-card"><div class="chart-title">Star Ratings</div><canvas id="ch-rating" height="200"></canvas></div>
+  </div>
+</section>
+
+<!-- POLICY KNOWLEDGE BASE -->
+<section class="admin-section hidden" id="sec-kb">
+  <div class="sec-header">
+    <h1 class="sec-title"><i class="fas fa-brain" style="color:var(--a1);margin-right:8px"></i>Policy Knowledge Base</h1>
+    <div class="sec-actions">
+      <button class="refresh-btn" onclick="loadKB()"><i class="fas fa-sync"></i> Refresh</button>
+      <label class="export-btn" for="kb-file-input" style="cursor:pointer">
+        <i class="fas fa-cloud-upload-alt"></i> Upload Policy Document
+        <input type="file" id="kb-file-input" accept=".pdf,.txt,.docx,.doc,.jpg,.jpeg,.png" onchange="kbUpload(this)" hidden>
+      </label>
+    </div>
+  </div>
+
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="stat-card" style="--accent:#5a72ff"><div class="stat-icon"><i class="fas fa-file-lines"></i></div><div class="stat-num" id="kb-total-docs">—</div><div class="stat-lbl">Documents</div></div>
+    <div class="stat-card" style="--accent:#10b981"><div class="stat-icon"><i class="fas fa-shield-halved"></i></div><div class="stat-num" id="kb-active-plans">—</div><div class="stat-lbl">Active Plans</div></div>
+    <div class="stat-card" style="--accent:#f59e0b"><div class="stat-icon"><i class="fas fa-trophy"></i></div><div class="stat-num" id="kb-top-plan" style="font-size:13px;line-height:1.3">—</div><div class="stat-lbl">Top Recommended</div></div>
+    <div class="stat-card" style="--accent:#ef4444"><div class="stat-icon"><i class="fas fa-circle-exclamation"></i></div><div class="stat-num" id="kb-missing">—</div><div class="stat-lbl">Missing Info</div></div>
+  </div>
+
+  <div id="kb-upload-bar" class="hidden" style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px">
+    <div class="kb-spinner"></div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:6px" id="kb-upload-step">Processing…</div>
+      <div style="background:var(--border);border-radius:99px;height:6px">
+        <div id="kb-upload-progress" style="height:6px;border-radius:99px;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .5s;width:0%"></div>
+      </div>
+    </div>
+    <div id="kb-upload-pct" style="font-size:12px;color:var(--tx3);min-width:36px">0%</div>
+  </div>
+
+  <div id="kb-result" class="hidden upload-result"></div>
+
+  <div class="kb-tabs">
+    <button class="kb-tab active" data-tab="docs"      onclick="kbTab('docs')"><i class="fas fa-file-lines"></i> Documents</button>
+    <button class="kb-tab"        data-tab="plans"     onclick="kbTab('plans')"><i class="fas fa-list-check"></i> All Plans</button>
+    <button class="kb-tab"        data-tab="analytics" onclick="kbTab('analytics')"><i class="fas fa-chart-bar"></i> Analytics</button>
+  </div>
+
+  <!-- DOCUMENTS TAB -->
+  <div id="kb-tab-docs">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Filename</th><th>Status</th><th>Plans</th><th>Ver.</th><th>Uploaded By</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody id="kb-docs-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PLANS TAB -->
+  <div id="kb-tab-plans" class="hidden">
+    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+      <input class="search-input" id="kb-plan-search" placeholder="Filter by name, company…" oninput="kbFilterPlans()" style="flex:1;min-width:200px">
+      <select class="search-input" id="kb-type-filter" onchange="kbFilterPlans()" style="min-width:180px">
+        <option value="">All Insurance Types</option>
+        <option>Health Insurance</option><option>Life Insurance</option>
+        <option>Term Life Insurance</option><option>Vehicle Insurance</option>
+        <option>Travel Insurance</option><option>Property Insurance</option>
+        <option>Accident Insurance</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Company</th><th>Plan Name</th><th>Type</th><th>Coverage</th><th>Premium</th><th>Waiting</th><th>Rec.</th><th>Source</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="kb-plans-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ANALYTICS TAB -->
+  <div id="kb-tab-analytics" class="hidden">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="chart-card">
+        <div class="chart-title">🏆 Most Recommended Plans</div>
+        <div id="kb-top-rec-list" style="display:flex;flex-direction:column;gap:8px;margin-top:10px"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">⚠️ Plans with Missing Info</div>
+        <div id="kb-missing-list" style="display:flex;flex-direction:column;gap:8px;margin-top:10px"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">❌ Failed User Searches</div>
+        <div id="kb-failed-list" style="display:flex;flex-direction:column;gap:8px;margin-top:10px"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">👁️ Most Viewed Plans</div>
+        <div id="kb-viewed-list" style="display:flex;flex-direction:column;gap:8px;margin-top:10px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plan Detail Modal -->
+  <div id="kb-modal" class="kb-modal hidden" onclick="if(event.target===this)closeKBModal()">
+    <div class="kb-modal-box">
+      <div class="kb-modal-header">
+        <h3 id="kb-modal-title">Plan Details</h3>
+        <button class="kb-modal-close" onclick="closeKBModal()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div id="kb-modal-body" class="kb-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Update Modal -->
+  <div id="kb-update-modal" class="kb-modal hidden" onclick="if(event.target===this)closeUpdateModal()">
+    <div class="kb-modal-box" style="max-width:480px">
+      <div class="kb-modal-header">
+        <h3>Update Document</h3>
+        <button class="kb-modal-close" onclick="closeUpdateModal()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+        <p style="font-size:13px;color:var(--tx2)">Upload a new version. The old version will be archived in version history.</p>
+        <input type="hidden" id="update-doc-id">
+        <label class="export-btn" for="update-file-input" style="justify-content:center;cursor:pointer">
+          <i class="fas fa-file-arrow-up"></i> Choose Updated File
+          <input type="file" id="update-file-input" accept=".pdf,.txt,.docx,.doc,.jpg,.jpeg,.png" hidden onchange="showUpdateFile(this)">
+        </label>
+        <div id="update-file-name" style="font-size:12px;color:var(--a1);text-align:center;font-weight:600"></div>
+        <input class="search-input" id="update-note" placeholder="Change note (optional — e.g. 'Updated premiums for 2025')" style="width:100%;box-sizing:border-box">
+        <button class="export-btn" onclick="submitUpdate()" style="width:100%;justify-content:center">
+          <i class="fas fa-rotate"></i> Re-extract &amp; Update
+        </button>
+        <div id="update-result" class="hidden upload-result"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USERS -->
+<section class="admin-section hidden" id="sec-users">
+  <div class="sec-header">
+    <h1 class="sec-title">Users <span class="count-badge" id="user-count"></span></h1>
+    <div class="sec-actions">
+      <input class="search-input" id="user-search" placeholder="Search name, city, insurance…" oninput="searchUsers()">
+      <a href="/api/admin/export/users" class="export-btn"><i class="fas fa-download"></i> CSV</a>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Age</th><th>City</th><th>Insurance</th><th>Family</th><th>Medical</th><th>Budget</th><th>ID Verified</th><th>Joined</th></tr></thead>
+      <tbody id="users-tbody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="user-pagination"></div>
+</section>
+
+<!-- CHATS -->
+<section class="admin-section hidden" id="sec-chats">
+  <div class="sec-header">
+    <h1 class="sec-title">Chat Logs</h1>
+    <input class="search-input" id="chat-search" placeholder="Search messages…" oninput="searchChats()">
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>User ID</th><th>Message</th><th>Bot Reply</th><th>Module</th><th>Lang</th><th>Time</th></tr></thead>
+      <tbody id="chats-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- LEADS -->
+<section class="admin-section hidden" id="sec-leads">
+  <div class="sec-header"><h1 class="sec-title">Leads</h1></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>User ID</th><th>Plan</th><th>Interest</th><th>Status</th><th>Time</th></tr></thead>
+      <tbody id="leads-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- RATINGS -->
+<section class="admin-section hidden" id="sec-ratings">
+  <div class="sec-header"><h1 class="sec-title">User Ratings</h1></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>User</th><th>Stars</th><th>Score</th><th>Comment</th><th>Time</th></tr></thead>
+      <tbody id="ratings-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- DOCUMENTS -->
+<section class="admin-section hidden" id="sec-documents">
+  <div class="sec-header"><h1 class="sec-title">User Uploaded Documents</h1></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Filename</th><th>Type</th><th>User</th><th>Status</th><th>Uploaded</th><th>Actions</th></tr></thead>
+      <tbody id="docs-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FRAUD -->
+<section class="admin-section hidden" id="sec-fraud">
+  <div class="sec-header"><h1 class="sec-title">Fraud Alerts</h1></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>User</th><th>Risk</th><th>Flags</th><th>Recommendation</th></tr></thead>
+      <tbody id="fraud-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- API KEYS -->
+<section class="admin-section hidden" id="sec-apikeys">
+  <div class="sec-header"><h1 class="sec-title">Gemini API Key Usage</h1></div>
+  <div class="api-keys-grid" id="api-keys-grid"></div>
+</section>
+
+</main>
+<script src="/static/js/admin.js"></script>
+</body>
+</html>
