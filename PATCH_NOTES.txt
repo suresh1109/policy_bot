@@ -1,0 +1,21 @@
+PolicyBot v4 Patch — What's Fixed
+====================================
+
+BUG FIXES:
+1. Step 2 (Name) now ALWAYS asked after insurance type — never skipped
+2. "NOT VERIFIED" badge no longer shown on page load — only after upload attempt
+3. Radio/multi buttons now properly disabled ONLY during verification, re-enabled after
+4. Bot no longer jumps to doc_upload skipping the name step
+5. Session isolation — fresh page load resets stage to prevent data mixing
+6. Document verification overlay shows animated 4-step progress
+7. Gemini API key rotation improved — better error handling and JSON parsing
+8. Image quality tips shown per specific quality issue (blurry/dark/cropped/etc.)
+9. Futuristic button animations: appear animation, hover glow, pulse on select, ripple
+
+HOW TO APPLY:
+Copy all files from patch2/ into your policybot-2.2/ folder, replacing existing files.
+Then restart: python app.py
+
+IMPORTANT — Add to your .env file:
+GEMINI_API_KEY_1=your_actual_key_here
+(This is why verification was showing "temporarily busy")

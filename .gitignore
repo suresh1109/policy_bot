@@ -1,0 +1,14 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+uploads/
+vector_db/
+*.db
+*.sqlite
+*.pkl
+node_modules/
+.venv/
+venv/
+*.log
